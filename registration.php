@@ -3,8 +3,8 @@ $role = $_GET['role'] ?? 'student'; // default to student
 ?>
 <script src="https://cdn.tailwindcss.com"></script>
 
-<section class="min-h-screen flex box-border justify-center items-center" style="background: linear-gradient(to right, #0f2027, #203a43, #2c5364);">
-  <div class="bg-[#dfa674] rounded-2xl flex max-w-3xl p-5 items-center shadow-xl">
+<section class="min-h-screen flex box-border justify-center items-center" style="background: linear-gradient(to right,rgb(250, 218, 94),rgb(250, 227, 155), rgb(250, 222, 124));">
+  <div class="bg-[#FFFFFF] rounded-2xl flex max-w-3xl p-5 items-center shadow-xl">
     <div class="md:w-1/2 px-8">
       <h2 class="font-bold text-3xl text-[#002D74]"><?= ucfirst($role) ?> Registration</h2>
       <p class="text-sm mt-4 text-[#002D74]">Please fill out the form to create your account.</p>
