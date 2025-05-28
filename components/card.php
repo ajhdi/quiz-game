@@ -3,15 +3,24 @@
   <button onclick="openModal('modal-<?= $quizID ?>')" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold">⋯</button>
 
   <!-- Card Content -->
-  <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white truncate">
-    <?= htmlspecialchars($quizTitle) ?>
-  </h5>
-  <p class="mb-1 text-gray-700 dark:text-gray-400 truncate"><strong>Subject:</strong> <?= htmlspecialchars($subjectDesc) ?> (<?= htmlspecialchars($subjectCode) ?>)</p>
-  <p class="mb-1 text-gray-700 dark:text-gray-400"><strong>Course:</strong> <?= htmlspecialchars($courseCode) ?></p>
-  <p class="mb-3 text-gray-700 dark:text-gray-400"><strong>Section:</strong> <?= htmlspecialchars($yearSection) ?></p>
-  <span class="inline-block px-3 py-1 text-sm rounded-full <?= $isActive ? 'bg-green-500 text-white' : 'bg-red-500 text-white' ?>">
-    <?= $isActive ? 'Active' : 'Inactive' ?>
-  </span>
+  <a href="question.php?quizID=<?= urlencode($quizID) ?>">
+    <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white truncate">
+      <?= htmlspecialchars($quizTitle) ?>
+    </h5>
+    <p class="mb-1 text-gray-700 dark:text-gray-400 truncate">
+      <strong>Subject:</strong> <?= htmlspecialchars($subjectDesc) ?> (<?= htmlspecialchars($subjectCode) ?>)
+    </p>
+    <p class="mb-1 text-gray-700 dark:text-gray-400">
+      <strong>Course:</strong> <?= htmlspecialchars($courseCode) ?>
+    </p>
+    <p class="mb-3 text-gray-700 dark:text-gray-400">
+      <strong>Section:</strong> <?= htmlspecialchars($yearSection) ?>
+    </p>
+    <span class="inline-block px-3 py-1 text-sm rounded-full <?= $isActive ? 'bg-green-500 text-white' : 'bg-red-500 text-white' ?>">
+      <?= $isActive ? 'Active' : 'Inactive' ?>
+    </span>
+  </a>
+
 
   <!-- Modal -->
   <div id="modal-<?= $quizID ?>" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">

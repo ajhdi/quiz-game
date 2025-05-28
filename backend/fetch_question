@@ -1,0 +1,17 @@
+<?php
+include 'conn.php';
+
+$quizID = $_GET['quizID'] ?? null;
+
+if (!$quizID) {
+  echo json_encode([]);
+  exit;
+}
+
+$stmt = $conn->prepare("SELECT questionID, questionDesc, optionA, optionB, optionC, optionD, correctAnswer FROM question_tbl WHERE quizID = :quizID");
+$stmt->bindParam(':quizID', $quizID, PDO::PARAM_INT);
+$stmt->execute();
+
+$questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+echo json_encode($questions);
+?>

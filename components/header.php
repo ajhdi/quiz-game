@@ -9,6 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Online Quiz System</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="min-h-screen flex flex-col" style="background-color: #F2F2F2;">
 
@@ -35,4 +36,4 @@
   </header>
 
   <!-- Main content -->
-  <main class="flex-grow py-12 px-12">
+  <main class="flex-grow py-6 px-12">
