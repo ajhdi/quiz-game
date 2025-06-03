@@ -9,11 +9,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $subjectCode = $_POST['subjectCode'];
   $courseCode = $_POST['courseCode'];
   $yearSection = $_POST['yearSection'];
-  $isActive = $_POST['isActive'];
+  $timer = $_POST['timeLimit'];
 
   try {
-    $stmt = $conn->prepare("UPDATE quiz_tbl SET quizTitle = ?, subjectDesc = ?, subjectCode = ?, courseCode = ?, yearSection = ?, isActive = ? WHERE quizID = ?");
-    $stmt->execute([$quizTitle, $subjectDesc, $subjectCode, $courseCode, $yearSection, $isActive, $quizID]);
+    $stmt = $conn->prepare("
+      UPDATE quiz_tbl 
+      SET quizTitle = ?, subjectDesc = ?, subjectCode = ?, courseCode = ?, yearSection = ?, timer = ?
+      WHERE quizID = ?
+    ");
+    $stmt->execute([$quizTitle, $subjectDesc, $subjectCode, $courseCode, $yearSection, $timer, $quizID]);
 
     echo json_encode(["success" => true]);
   } catch (PDOException $e) {
