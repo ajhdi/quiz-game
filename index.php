@@ -22,6 +22,11 @@
     function selectRole(role) {
       window.location.href = `login.php?role=${role}`;
     }
+    history.pushState(null, null, null);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, null);
+    });
   </script>
+
 </body>
 </html>

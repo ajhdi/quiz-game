@@ -6,6 +6,16 @@ include_once('backend/conn.php');
 <button onclick="openModal('create-quiz-modal')" class="bg-yellow-200 hover:bg-yellow-300 font-semibold py-2 px-4 rounded-lg mb-4">
   + Create Quiz
 </button>
+<!-- Filter Modal Trigger -->
+<!-- Filter Icon Button with Tooltip using Tippy.js -->
+<button
+  onclick="openFilterModal('filterModal')"
+  class="text-yellow-600 hover:text-yellow-800 p-2 text-xl"
+  data-tippy-content="Filter Quizzes">
+  <i class="fas fa-filter"></i>
+</button>
+
+
 
 <div id="card" class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
   <?php
@@ -63,7 +73,7 @@ include_once('backend/conn.php');
       </div>
 
       <div class="flex justify-end gap-3 pt-4">
-        <button type="button" onclick="closeModal('create-quiz-modal')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-5 rounded-lg transition">Cancel</button>
+        <button type="button" onclick="closeFilterModal('create-quiz-modal')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-5 rounded-lg transition">Cancel</button>
         <button type="submit" class="bg-yellow-200 hover:bg-yellow-300 font-medium py-2 px-6 rounded-lg transition">Create Quiz</button>
       </div>
     </form>
@@ -71,6 +81,59 @@ include_once('backend/conn.php');
 </div>
 
 
+<!-- Modal -->
+
+<div id="filterModal" class="fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50">
+  <div class="bg-white p-6 rounded shadow-lg w-full max-w-md relative">
+    <h2 class="text-xl font-semibold mb-4">Filter Quizzes</h2>
+
+    <form id="filterForm" class="space-y-4">
+      <!-- Hidden input for profID -->
+      <input type="hidden" name="profID" value="<?= htmlspecialchars($profID) ?>">
+
+      <input type="text" name="quizTitle" placeholder="Quiz Title" class="w-full border rounded px-3 py-2" />
+      <input type="text" name="subjectCode" placeholder="Subject Code" class="w-full border rounded px-3 py-2" />
+      <input type="text" name="subjectDesc" placeholder="Subject Description" class="w-full border rounded px-3 py-2" />
+      <input type="text" name="courseCode" placeholder="Course Code" class="w-full border rounded px-3 py-2" />
+      <input type="text" name="yearSection" placeholder="Year & Section" class="w-full border rounded px-3 py-2" />
+      <input type="number" name="year" placeholder="Year (from time_stamp)" class="w-full border rounded px-3 py-2" />
+
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeModal('filterModal')" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Apply</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  tippy('[data-tippy-content]');
+
+  function openFilterModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+    document.getElementById(id).classList.add('flex');
+  }
+
+  function closeFilterModal(id) {
+    document.getElementById(id).classList.add('hidden');
+    document.getElementById(id).classList.remove('flex');
+  }
+
+  document.getElementById('filterForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('backend/quiz_filter.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('card').innerHTML = html;
+        closeModal('filterModal');
+      });
+  });
+</script>
 <?php
 include_once('components/footer.php');
 ?>

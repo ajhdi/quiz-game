@@ -1,8 +1,7 @@
 <?php
 $role = $_GET['role'] ?? 'student'; // default to student
 ?>
-<script src="https://cdn.tailwindcss.com"></script>
-
+<body>
 <section class="min-h-screen flex box-border justify-center items-center" style="background: linear-gradient(to right,rgb(250, 218, 94),rgb(250, 227, 155), rgb(250, 222, 124));">
   <div class="bg-[#FFFFFF] rounded-2xl flex max-w-3xl p-5 items-center shadow-xl">
     <div class="md:w-1/2 px-8">
@@ -17,7 +16,7 @@ $role = $_GET['role'] ?? 'student'; // default to student
         <input class="p-2 rounded-xl border" type="text" name="<?= $role == 'student' ? 'studFname' : 'proFname' ?>" placeholder="First Name" required>
         <input class="p-2 rounded-xl border" type="text" name="<?= $role == 'student' ? 'studLname' : 'proLname' ?>" placeholder="Last Name" required>
         <input class="p-2 rounded-xl border" type="text" name="<?= $role == 'student' ? 'studMname' : 'proMname' ?>" placeholder="Middle Name">
-        <input class="p-2 rounded-xl border" type="text" name="<?= $role == 'student' ? 'studNo' : 'profNo' ?>" placeholder="<?= $role == 'student' ? 'Student Number' : 'Professor Number' ?>" required>
+        <input class="p-2 rounded-xl border" type="text" name="<?= $role == 'student' ? 'studNo' : 'profNo' ?>" placeholder="<?= $role == 'student' ? 'Student Number' : 'Professor Number' ?>" maxlength="9" required>
 
         <?php if ($role == 'student'): ?>
           <input class="p-2 rounded-xl border" type="text" name="courseCode" placeholder="Course Code" required>
@@ -38,6 +37,14 @@ $role = $_GET['role'] ?? 'student'; // default to student
     </div>
   </div>
 </section>
-
+<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white p-6 rounded shadow-lg text-center max-w-sm w-full">
+    <h2 class="text-xl font-semibold mb-4 text-green-600">Registration Successful</h2>
+    <p class="mb-4">You will be redirected shortly.</p>
+    <button onclick="closeSuccessModal()" class="bg-blue-600 text-white px-4 py-2 rounded">OK</button>
+  </div>
+</div>
+</body>
 <!-- AJAX Script -->
+ <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/registration.js"></script>
