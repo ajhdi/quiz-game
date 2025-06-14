@@ -355,7 +355,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
 
     setTimeout(() => {
       toastContainer.classList.add('hidden');
-      location.reload();
+      // location.reload();
     }, 1000);
   }
 

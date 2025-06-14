@@ -2,8 +2,9 @@
 session_start();
 include 'conn.php';
 
-$role = $_POST['role'] ?? 'student';
+header('Content-Type: application/json'); // Important for JSON response
 
+$role = $_POST['role'] ?? 'student';
 $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -35,7 +36,7 @@ try {
         ]);
     }
 
-    echo "Registration successful!";
+    echo json_encode(['success' => true, 'message' => 'Registration successful!']);
 } catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
+    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }

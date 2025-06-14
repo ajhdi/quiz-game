@@ -12,7 +12,11 @@ $role = $_GET['role'] ?? 'student'; // default to student
       <div id="alertBox" class="hidden mt-4 text-sm px-4 py-2 rounded-lg font-medium"></div>
 
       <form id="loginForm" class="flex flex-col gap-4 mt-4" data-role="<?= $role ?>">
-        <input class="p-2 rounded-xl border" type="email" name="email" placeholder="Email" required>
+        <?php if ($role === 'teacher'): ?>
+          <input class="p-2 rounded-xl border" type="text" name="profNo" placeholder="Professor Number" maxlength="9" required>
+        <?php else: ?>
+          <input class="p-2 rounded-xl border" type="text" name="studNo" placeholder="Student Number" maxlength="9" required>
+        <?php endif; ?>
         <input class="p-2 rounded-xl border" type="password" name="password" placeholder="Password" required>
         <button type="submit" class="bg-[#002D74] text-white py-2 rounded-xl hover:scale-105 duration-300 hover:bg-[#206ab1] font-medium">Login</button>
       </form>
