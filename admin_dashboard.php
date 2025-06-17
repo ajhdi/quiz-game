@@ -1,0 +1,230 @@
+<?php
+include_once('components/header.php');
+include_once('components/toast.php');
+include_once('components/toast_failed.php');
+include_once('backend/conn.php');
+$stmts = $conn->prepare("SELECT * FROM student_tbl");
+$stmts->execute();
+$students = $stmts->fetchAll(PDO::FETCH_ASSOC);
+?>
+<div class="flex justify-between items-center ">
+    <!-- Tabs on the left -->
+    <div class="flex">
+        <a href="admin_dashboard.php" class="bg-yellow-200 hover:bg-yellow-300 px-4 py-2 rounded-t-md text-black font-medium">Student</a>
+        <a href="teacher_account.php" class="hover:bg-yellow-300 px-4 py-2 rounded-t-md text-black bg-gray-200 font-medium">Professor</a>
+    </div>
+    <div class="flex gap-1">
+        <button id="updateBtn" class="bg-green-800 hover:bg-green-900 px-3 py-2 rounded flex items-center text-sm text-white">
+            Update Mode
+        </button>
+        <button id="saveBtn" class="hidden bg-green-800 hover:bg-green-700 px-3 py-2 rounded flex items-center text-sm text-white">
+            <i class="fas fa-file-import mr-2"></i> Save
+        </button>
+        <button id="cancelBtn" class="hidden bg-red-600 hover:bg-red-800 px-3 py-2 rounded flex items-center text-sm text-white">
+            <i class="fas fa-file-export mr-2"></i> Cancel
+        </button>
+    </div>
+
+</div>
+<div class="bg-white p-6 shadow-md rounded-md mb-6">
+    <div>
+        <table id="questionsTable" class="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Student #</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Student First Name</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Student Last Name</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Student Middle Name</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Student Email</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Course</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Year & Section</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <?php if (!empty($students)) : ?>
+                    <?php $count = 1; ?>
+                    <?php foreach ($students as $s) : ?>
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <td class="editable px-5 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
+                                contenteditable="false"
+                                data-id="<?= htmlspecialchars($s['studNo']) ?>"
+                                data-field="studNo">
+                                <?= htmlspecialchars($s['studNo']) ?>
+                            </td>
+                            <td class="editable px-5 py-4 whitespace-nowrap text-sm text-gray-900"
+                                contenteditable="false"
+                                data-id="<?= htmlspecialchars($s['studNo']) ?>"
+                                data-field="studFname">
+                                <?= htmlspecialchars($s['studFname']) ?>
+                            </td>
+                            <td class="editable px-5 py-4 whitespace-nowrap text-sm text-gray-900"
+                                contenteditable="false"
+                                data-id="<?= htmlspecialchars($s['studNo']) ?>"
+                                data-field="studLname">
+                                <?= htmlspecialchars($s['studLname']) ?>
+                            </td>
+                            <td class="editable px-5 py-4 whitespace-nowrap text-sm text-gray-900"
+                                contenteditable="false"
+                                data-id="<?= htmlspecialchars($s['studNo']) ?>"
+                                data-field="studMname">
+                                <?= htmlspecialchars($s['studMname']) ?>
+                            </td>
+                            <td class="editable px-5 py-4 whitespace-nowrap text-sm text-gray-900"
+                                contenteditable="false"
+                                data-id="<?= htmlspecialchars($s['studNo']) ?>"
+                                data-field="email">
+                                <?= htmlspecialchars($s['email']) ?>
+                            </td>
+                            <td class="editable px-5 py-4 whitespace-nowrap text-sm text-gray-900"
+                                contenteditable="false"
+                                data-id="<?= htmlspecialchars($s['studNo']) ?>"
+                                data-field="courseCode">
+                                <?= htmlspecialchars($s['courseCode']) ?>
+                            </td>
+                            <td class="editable px-5 py-4 whitespace-nowrap text-sm text-gray-900"
+                                contenteditable="false"
+                                data-id="<?= htmlspecialchars($s['studNo']) ?>"
+                                data-field="yearSection">
+                                <?= htmlspecialchars($s['yearSection']) ?>
+                            </td>
+
+
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else : ?>
+
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const updateBtn = document.getElementById("updateBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        let changes = {};
+
+        updateBtn.addEventListener("click", () => {
+            updateBtn.classList.add("hidden");
+            saveBtn.classList.remove("hidden");
+            cancelBtn.classList.remove("hidden");
+
+            document.querySelectorAll("td.editable").forEach(cell => {
+                const field = cell.dataset.field;
+                const id = cell.dataset.id;
+                const original = cell.textContent.trim();
+
+                cell.contentEditable = true;
+                cell.classList.add("bg-green-200");
+
+                // Limit studNo to 9 characters only
+                if (field === "studNo") {
+                    cell.addEventListener("input", () => {
+                        if (cell.textContent.length > 9) {
+                            cell.textContent = cell.textContent.slice(0, 9);
+                            placeCursorAtEnd(cell);
+                        }
+                    });
+                }
+
+                // Track changes after editing
+                cell.addEventListener("blur", () => {
+                    const newValue = cell.textContent.trim();
+                    if (newValue !== original) {
+                        if (!changes[id]) changes[id] = {};
+                        changes[id][field] = newValue;
+                    }
+                });
+            });
+        });
+
+        // Utility to place the cursor at the end of the contenteditable cell
+        function placeCursorAtEnd(el) {
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+
+        cancelBtn.addEventListener("click", () => {
+            location.reload(); // Reset everything
+        });
+
+        saveBtn.addEventListener("click", () => {
+            if (Object.keys(changes).length === 0) {
+                showToast("No changes made!", false);
+                return;
+            }
+
+            let invalid = false;
+
+            Object.entries(changes).forEach(([id, fields]) => {
+                for (const [field, value] of Object.entries(fields)) {
+                    if (field !== "studMname" && value.trim() === "") {
+                        invalid = true;
+                        break;
+                    }
+                }
+            });
+
+            if (invalid) {
+                showToast("Fields cannot be empty (except Middle Name)", false);
+                return;
+            }
+
+            fetch("backend/save_students_batch.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(changes)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast("Saved successfully!", true);
+
+                        updateBtn.classList.remove("hidden");
+                        saveBtn.classList.add("hidden");
+                        cancelBtn.classList.add("hidden");
+
+                        document.querySelectorAll("td.editable").forEach(cell => {
+                            cell.contentEditable = false;
+                            cell.classList.remove("bg-green-200");
+                        });
+
+                        changes = {}; // Clear saved changes
+                    } else {
+                        showToast("Save failed!", false);
+                    }
+                })
+                .catch(() => showToast("Network error!", false));
+        });
+
+
+        function showToast(message, success = true) {
+            const toast = document.getElementById("toast-success");
+            toast.querySelector(".toast-message").textContent = message;
+            toast.classList.remove("hidden");
+
+            toast.classList.toggle("bg-green-100", success);
+            toast.classList.toggle("text-green-800", success);
+            toast.classList.toggle("bg-red-100", !success);
+            toast.classList.toggle("text-red-800", !success);
+
+            setTimeout(() => toast.classList.add("hidden"), 3000);
+        }
+    });
+</script>
+
+
+
+<?php
+include_once('components/footer.php');
+?>

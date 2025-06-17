@@ -41,7 +41,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
     <li class="inline-flex items-center">
       <a href="teacher_dashboard.php" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-yellow-300 dark:text-gray-400 dark:hover:text-white">
         <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-          <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+          <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
         </svg>
         Dashboard
       </a>
@@ -49,7 +49,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
     <li>
       <div class="flex items-center">
         <svg class="rtl:rotate-180 block w-3 h-3 mx-1 text-gray-400 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
         </svg>
         <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-yellow-300 md:ms-2 dark:text-gray-400 dark:hover:text-white"><?= htmlspecialchars($quiz['quizTitle']) ?></a>
       </div>
@@ -70,7 +70,10 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
       <i class="fas fa-plus mr-2"></i> Add Question
     </button>
     <button id="importExcelBtn" class="bg-yellow-200 hover:bg-yellow-300 px-3 py-2 rounded flex items-center text-sm">
-      <i class="fas fa-file-import mr-2"></i> Import Excel
+      <i class="fas fa-file-import mr-2"></i> Import CSV
+    </button>
+    <button id="exportCSVBtn" class="bg-yellow-200 hover:bg-yellow-300 px-3 py-2 rounded flex items-center text-sm">
+      <i class="fas fa-file-export mr-2"></i> CSV Template
     </button>
 
     <input type="file" id="importFileInput" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none" />
@@ -149,7 +152,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
             </tr>
           <?php endforeach; ?>
         <?php else : ?>
-          
+
         <?php endif; ?>
       </tbody>
     </table>
@@ -308,7 +311,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
         </svg>
         <h3 class="mb-5 text-lg font-semibold text-gray-700">Are you sure you want to delete this question?</h3>
         <button id="confirmDeleteBtn" type="button"
-          class= bg-red-600 hover:bg-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5">
+          class=bg-red-600 hover:bg-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5">
           Yes, I'm sure
         </button>
         <button onclick="hideModal()" type="button"
@@ -355,7 +358,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
 
     setTimeout(() => {
       toastContainer.classList.add('hidden');
-      // location.reload();
+      location.reload();
     }, 1000);
   }
 
@@ -641,6 +644,47 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
         alert('AJAX error: ' + err.message);
         hideModal();
       });
+  });
+  document.getElementById("exportCSVBtn").addEventListener("click", function() {
+    const headers = [
+      "Sample Question", "A", "B", "C", "D", "Answer"
+    ];
+
+    const rows = [
+      [
+        "Which declaration defines a document as HTML5?",
+        'A) <!DOCTYPE version="HTML5">',
+        "B) <HTML5>",
+        "C) <html>",
+        "D) <!DOCTYPE html>",
+        "D"
+      ],
+      [
+        "What is the purpose of the <head> tag?",
+        "A) To Create the documents",
+        "B) To contain visible content of the page",
+        "C) To define paragraphs.",
+        "D) To label multimedia elements.",
+        "A"
+      ]
+    ];
+
+    let csvContent = headers.join(",") + "\n";
+    rows.forEach(row => {
+      csvContent += row.map(field => `"${field}"`).join(",") + "\n";
+    });
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;"
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "quiz_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 </script>
 <?php

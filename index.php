@@ -16,6 +16,9 @@
     <button onclick="selectRole('teacher')" class="w-full bg-green-600 text-white py-2 rounded-xl hover:bg-green-700 transition-all font-medium">
       Teacher
     </button>
+    <button onclick="selectRole('admin')" class="w-full bg-yellow-600 text-white py-2 rounded-xl hover:bg-yellow-700 transition-all font-medium">
+      Administrator
+    </button>
   </div>
 
   <script>

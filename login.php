@@ -14,6 +14,8 @@ $role = $_GET['role'] ?? 'student'; // default to student
       <form id="loginForm" class="flex flex-col gap-4 mt-4" data-role="<?= $role ?>">
         <?php if ($role === 'teacher'): ?>
           <input class="p-2 rounded-xl border" type="text" name="profNo" placeholder="Professor Number" maxlength="9" required>
+        <?php elseif ($role === 'admin'): ?>
+          <input class="p-2 rounded-xl border" type="text" name="adminNo" placeholder="Admin Number" maxlength="9" required>
         <?php else: ?>
           <input class="p-2 rounded-xl border" type="text" name="studNo" placeholder="Student Number" maxlength="9" required>
         <?php endif; ?>
@@ -21,14 +23,14 @@ $role = $_GET['role'] ?? 'student'; // default to student
         <button type="submit" class="bg-[#002D74] text-white py-2 rounded-xl hover:scale-105 duration-300 hover:bg-[#206ab1] font-medium">Login</button>
       </form>
 
-      <div class="mt-10 text-sm border-b border-gray-500 py-5">Forgot password?</div>
-
-      <div class="mt-4 text-sm flex justify-between items-center">
-        <p>If you don't have an account...</p>
-        <a href="registration.php?role=<?= $role ?>" class="bg-[#002D74] text-white rounded-xl py-2 px-5 hover:scale-110 hover:bg-[#002c7424] font-semibold duration-300">
+      <?php if ($role !== 'admin'): ?>
+        <div class="mt-4 text-sm flex justify-between items-center">
+          <p>If you don't have an account...</p>
+          <a href="registration.php?role=<?= $role ?>" class="bg-[#002D74] text-white rounded-xl py-2 px-5 hover:scale-110 hover:bg-[#002c7424] font-semibold duration-300">
             Register
-        </a>
-      </div>
+          </a>
+        </div>
+      <?php endif; ?>
 
     </div>
 
@@ -38,4 +40,61 @@ $role = $_GET['role'] ?? 'student'; // default to student
   </div>
 </section>
 
-<script src="js/login.js"></script>
+<script>
+  document
+  .getElementById("loginForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const role = formData.has("adminNo")
+      ? "admin"
+      : formData.has("profNo")
+      ? "teacher"
+      : "student";
+
+    formData.append("role", role);
+
+    const alertBox = document.getElementById("alertBox");
+
+    try {
+      const response = await fetch("backend/login.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.text();
+
+      if (result.trim() === "success") {
+        console.log("Detected role:", role); // ✅ DEBUG: See if it's 'admin'
+        alertBox.textContent = "Login successful! Redirecting...";
+        alertBox.className =
+          "mt-4 text-sm px-4 py-2 rounded-lg bg-green-500 text-white font-medium";
+
+        setTimeout(() => {
+          if (role === "teacher") {
+            window.location.href = "teacher_dashboard.php";
+          } else if (role === "admin") {
+            window.location.href = "admin_dashboard.php";
+          } else {
+            window.location.href = "student_dashboard.php";
+          }
+        }, 1500);
+      } else {
+        alertBox.textContent = result;
+        alertBox.className =
+          "mt-4 text-sm px-4 py-2 rounded-lg bg-red-500 text-white font-medium";
+      }
+
+      alertBox.classList.remove("hidden");
+    } catch (err) {
+      alertBox.textContent = "Error occurred. Try again.";
+      alertBox.className =
+        "mt-4 text-sm px-4 py-2 rounded-lg bg-red-500 text-white font-medium";
+      alertBox.classList.remove("hidden");
+    }
+  });
+
+</script>
