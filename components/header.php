@@ -7,13 +7,21 @@ include_once('backend/conn.php'); // Ensure DB connection
 
 $profID = $_SESSION['profID'] ?? null;
 $studentID = $_SESSION['studentID'] ?? null;
+$adminID = $_SESSION['adminID'] ?? null;
 
-$role = $profID ? 'teacher' : ($studentID ? 'student' : null);
+
+$role = $adminID ? 'admin' : ($profID ? 'teacher' : ($studentID ? 'student' : null));
+
 if (!$role) {
   header("Location: index.php");
   exit;
 }
-$dashboardUrl = $role === 'teacher' ? 'teacher_dashboard.php' : 'student_dashboard.php';
+
+$dashboardUrl = match ($role) {
+  'admin' => 'admin_dashboard.php',
+  'teacher' => 'teacher_dashboard.php',
+  'student' => 'student_dashboard.php',
+};
 
 // Fetch user data
 $studentData = null;
@@ -66,14 +74,22 @@ if (isset($_SESSION['toast'])) {
         <span class="text-2xl font-extrabold text-gray-900">QUIZIX</span>
       </a>
 
-      <!-- Navigation -->
+      <!-- Desktop Navigation -->
       <nav class="hidden md:flex space-x-8">
-        <a href="<?= htmlspecialchars($dashboardUrl) ?>" class="text-gray-900 font-medium hover:text-yellow-700 transition-colors">Dashboard</a>
-        <button onclick="showProfileModal('<?= $role ?>')" class="text-gray-900 font-medium hover:text-yellow-700 transition-colors">User</button> <!-- Button that shows the logout modal -->
-        <button onclick="showLogoutModal()"
-          class="block text-gray-900 font-semibold hover:text-red-600 transition-colors">
-          Logout
-        </button>
+        <?php if ($role !== 'admin'): ?>
+          <a href="<?= htmlspecialchars($dashboardUrl) ?>" class="text-gray-900 font-medium hover:text-yellow-700 transition-colors">Quiz</a>
+        <?php endif; ?>
+        <?php if ($role === 'student'): ?>
+          <a href="student_result.php" class="text-gray-900 font-medium hover:text-yellow-700 transition-colors">Result</a>
+        <?php endif; ?>
+
+        <?php if ($role === 'admin'): ?>
+          <a href="admin_dashboard.php" class="text-gray-900 font-medium hover:text-yellow-700 transition-colors">Accounts</a>
+        <?php endif; ?>
+        <?php if ($role !== 'admin'): ?>
+          <button onclick="showProfileModal('<?= $role ?>')" class="text-gray-900 font-medium hover:text-yellow-700 transition-colors">User</button>
+        <?php endif; ?>
+        <button onclick="showLogoutModal()" class="block text-gray-900 font-semibold hover:text-red-600 transition-colors">Logout</button>
       </nav>
 
       <!-- Mobile Menu Icon -->
@@ -84,28 +100,25 @@ if (isset($_SESSION['toast'])) {
           </svg>
         </button>
       </div>
+
+      <!-- Mobile Navigation -->
       <nav id="mobile-menu"
         class="hidden absolute top-full left-0 right-0 z-50 flex-col space-y-3 px-4 py-4 shadow-md rounded-b-md transition-all duration-300 ease-in-out opacity-0 translate-y-[-10px] md:hidden"
         style="background-color: rgba(254, 230, 160, 0.95);">
-        <a href="<?= htmlspecialchars($dashboardUrl) ?>"
-          class="block text-gray-900 font-semibold hover:text-yellow-700 transition-colors">
-          Dashboard
-        </a>
-        <a href="#"
-          class="block text-gray-900 font-semibold hover:text-yellow-700 transition-colors">
-          User
-        </a>
-        <!-- Button that shows the logout modal -->
-        <button onclick="showLogoutModal()"
-          class="block text-gray-900 font-semibold hover:text-red-600 transition-colors">
-          Logout
-        </button>
-
+        <?php if ($role !== 'admin'): ?>
+          <a href="<?= htmlspecialchars($dashboardUrl) ?>" class="block text-gray-900 font-semibold hover:text-yellow-700 transition-colors">Quiz</a>
+        <?php endif; ?>
+        <?php if ($role === 'student'): ?>
+          <a href="student_result.php" class="block text-gray-900 font-semibold hover:text-yellow-700 transition-colors">Result</a>
+        <?php endif; ?>
+        <?php if ($role !== 'admin'): ?>
+          <a href="#" onclick="showProfileModal('<?= $role ?>')" class="block text-gray-900 font-semibold hover:text-yellow-700 transition-colors">User</a>
+        <?php endif; ?>
+        <button onclick="showLogoutModal()" class="block text-gray-900 font-semibold hover:text-red-600 transition-colors">Logout</button>
       </nav>
     </div>
-
-
   </header>
+
   <!-- Logout Confirmation Modal -->
   <div id="logout-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="relative p-4 w-full max-w-md">
@@ -157,11 +170,13 @@ if (isset($_SESSION['toast'])) {
           <input type="hidden" name="studentID" value="<?= $studentData['studentID'] ?>">
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" name="studNo" readonly placeholder="Student Number" value="<?= htmlspecialchars($studentData['studNo']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-gray-300 placeholder-gray-400 transition" required readonly>
+            <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($studentData['email']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-gray-300 placeholder-gray-400 transition" required readonly>
             <input type="text" name="studFname" placeholder="First Name" value="<?= htmlspecialchars($studentData['studFname']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
             <input type="text" name="studMname" placeholder="Middle Name" value="<?= htmlspecialchars($studentData['studMname']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition">
             <input type="text" name="studLname" placeholder="Last Name" value="<?= htmlspecialchars($studentData['studLname']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
-            <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($studentData['email']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
-            <input type="text" name="studNo" readonly placeholder="Student Number" value="<?= htmlspecialchars($studentData['studNo']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
+            
+            
             <input type="text" name="courseCode" placeholder="Course" value="<?= htmlspecialchars($studentData['courseCode']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
             <input type="text" name="yearSection" placeholder="Year & Section" value="<?= htmlspecialchars($studentData['yearSection']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
           </div>
@@ -191,11 +206,12 @@ if (isset($_SESSION['toast'])) {
           <input type="hidden" name="profID" value="<?= $professorData['profID'] ?>">
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($professorData['email']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-gray-300 placeholder-gray-400 transition" required readonly>
+            <input type="text" name="profNo" placeholder="Professor Number" value="<?= htmlspecialchars($professorData['profNo']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-gray-300 placeholder-gray-400 transition" required readonly>
             <input type="text" name="proFname" placeholder="First Name" value="<?= htmlspecialchars($professorData['proFname']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
             <input type="text" name="proMname" placeholder="Middle Name" value="<?= htmlspecialchars($professorData['proMname']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition">
             <input type="text" name="proLname" placeholder="Last Name" value="<?= htmlspecialchars($professorData['proLname']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
-            <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($professorData['email']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
-            <input type="text" name="profNo" placeholder="Professor Number" value="<?= htmlspecialchars($professorData['profNo']) ?>" class="w-full border-b-2 border-black focus:border-yellow-500 focus:outline-none px-2 py-2 bg-transparent placeholder-gray-400 transition" required>
+            
           </div>
 
           <div class="flex justify-end space-x-4 pt-4">

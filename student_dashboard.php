@@ -24,13 +24,20 @@ include_once('backend/conn.php');
         ");
         $quizStmt->execute([$courseCode, $yearSection]);
 
+        $hasQuizzes = false;
+
         while ($row = $quizStmt->fetch(PDO::FETCH_ASSOC)) {
+          $hasQuizzes = true;
           extract($row); // Makes $quizID, $quizTitle, etc. available
           $countStmt = $conn->prepare("SELECT COUNT(*) FROM question_tbl WHERE quizID = ?");
           $countStmt->execute([$quizID]);
           $questionCount = $countStmt->fetchColumn(); // returns the number directly
 
           include('components/student_card.php'); // You can now use $questionCount in this file
+        }
+
+        if (!$hasQuizzes) {
+          echo "<h1 class='text-center col-span-full text-4xl font-bold text-gray-600'>Welcome to Quizix!</h1>";
         }
       } else {
         echo "<p class='text-red-600'>Student not found.</p>";
