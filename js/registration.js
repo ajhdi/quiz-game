@@ -6,6 +6,19 @@ function closeSuccessModal() {
   document.getElementById("successModal").classList.add("hidden");
 }
 
+function unSuccessModal(message) {
+  const toast = document.getElementById("toast-failed");
+  const toastMessage = toast.querySelector(".toast-message");
+
+  toastMessage.textContent = message; // Set the result.message here
+  toast.classList.remove("hidden");
+
+  // Optionally auto-hide after a few seconds
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 3000);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("registerForm");
 
@@ -29,11 +42,11 @@ document.addEventListener("DOMContentLoaded", function () {
           window.location.href = `login.php?role=${encodeURIComponent(role)}`;
         }, 2000);
       } else {
-        alert(result.message); // Show error if registration fails
+        unSuccessModal(result.message); // Show error if registration fails
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred while registering.");
+      unSuccessModal("An error occurred while registering.");
     }
   });
 });

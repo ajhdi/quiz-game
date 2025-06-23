@@ -1,12 +1,32 @@
 <?php
 $role = $_GET['role'] ?? 'student'; // default to student
+include_once('components/toast_failed.php');
+$bgColor = match ($role) {
+    'student' => 'bg-[#FFFFFF]',     // light blue
+    'teacher' => 'bg-[#48483A]',     // light gray
+    'admin'   => 'bg-[#48483A]',     // light yellow
+    default   => 'bg-[#ffffff]',     // fallback white
+  };
+$txtColor = match ($role) {
+    'student' => 'text-[#002D74]',     // light blue
+    'teacher' => 'text-[#DFF8EB]',     // light gray
+    'admin'   => 'text-[#DFF8EB]',     // light yellow
+    default   => 'text-[#ffffff]',     // fallback white
+  };
+
+$imgRole = match ($role) {
+    'student' => 'assets/student.png',     // light blue
+    'teacher' => 'assets/prof.png',     // light gray
+    'admin'   => 'assets/admin.png',     // light yellow
+    default   => 'bg-[#ffffff]',     // fallback white
+  };
 ?>
 <body>
 <section class="min-h-screen flex box-border justify-center items-center" style="background: linear-gradient(to right,rgb(250, 218, 94),rgb(250, 227, 155), rgb(250, 222, 124));">
-  <div class="bg-[#FFFFFF] rounded-2xl flex max-w-3xl p-5 items-center shadow-xl">
+  <div class="<?= $bgColor ?> rounded-2xl flex max-w-3xl p-5 items-center shadow-xl">
     <div class="md:w-1/2 px-8">
-      <h2 class="font-bold text-3xl text-[#002D74]"><?= ucfirst($role) ?> Registration</h2>
-      <p class="text-sm mt-4 text-[#002D74]">Please fill out the form to create your account.</p>
+      <h2 class="font-bold text-3xl <?= $txtColor ?>"><?= ucfirst($role) ?> Registration</h2>
+      <p class="text-sm mt-4 <?= $txtColor ?>">Please fill out the form to create your account.</p>
 
       <div id="alertBox" class="hidden mt-4 text-sm px-4 py-2 rounded-lg font-medium"></div>
 
@@ -33,7 +53,7 @@ $role = $_GET['role'] ?? 'student'; // default to student
     </div>
 
     <div class="md:block hidden w-1/2">
-      <img class="rounded-2xl max-h-[1600px]" src="https://images.unsplash.com/photo-1552010099-5dc86fcfaa38?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NzEyNjZ8MHwxfHNlYXJjaHwxfHxmcmVzaHxlbnwwfDF8fHwxNzEyMTU4MDk0fDA&ixlib=rb-4.0.3&q=80&w=1080" alt="form image">
+      <img class="rounded-2xl max-h-[1600px]" src="<?= $imgRole ?>" alt="form image">
     </div>
   </div>
 </section>
