@@ -45,7 +45,11 @@ header h1 {
   gap: 15px;
   margin-bottom: 20px;
 }
-
+@media (max-width: 640px) {
+  .answers-container {
+    grid-template-columns: 1fr; /* 1 choice per row on small screens */
+  }
+}
 button.answer {
 
   border: none;
