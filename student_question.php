@@ -72,6 +72,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
+
 <body>
     <div class="game-container">
         <div class="game-card">
@@ -129,6 +130,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
     let progress = 0;
     let timeLeft = timerSetting * 60;
     let timerInterval;
+    let quizStarted = false;
 
     const categoryElem = document.getElementById('category');
     const questionElem = document.getElementById('question');
@@ -136,7 +138,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
     const progressElem = document.getElementById('progress');
     const timeElem = document.getElementById('time');
     const timeContainer = timeElem?.parentElement;
-
+    const startBtn = document.getElementById('start');
     const modal = document.getElementById('popup-modal');
     const confirmBtn = document.getElementById('confirmDeleteBtn');
     const modalTitle = document.getElementById('modal-title');
@@ -149,6 +151,7 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
         score = state.score || 0;
         timeLeft = state.timeLeft || timerSetting * 60;
         shuffledQuestions = state.shuffledQuestions || questions;
+        quizStarted = state.started || false;
     } else {
         shuffledQuestions = [...questions];
         shuffle(shuffledQuestions);
@@ -197,12 +200,14 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
         if (!hasTimer) return;
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
-        timeElem.innerText = timeLeft > 60
-            ? `${minutes} minute${minutes > 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}`
-            : `${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
+        timeElem.innerText = timeLeft > 60 ?
+            `${minutes} minute${minutes > 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}` :
+            `${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
     }
 
     function checkAnswer(selectedIndex) {
+        if (!quizStarted) return;
+
         const questionData = shuffledQuestions[currentQuestionIndex];
         if (selectedIndex === questionData.answer) score++;
 
@@ -229,15 +234,17 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
     function saveScore(score, total) {
         if (!studentID) return;
         fetch('backend/result.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ studentID, quizID, score, total })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status !== 'success') console.error('Failed to save score:', data.message);
-        })
-        .catch(err => console.error('Error saving score:', err));
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ studentID, quizID, score, total })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status !== 'success') console.error('Failed to save score:', data.message);
+            })
+            .catch(err => console.error('Error saving score:', err));
     }
 
     function showModal(score, total) {
@@ -256,37 +263,50 @@ $questions = $stmts->fetchAll(PDO::FETCH_ASSOC);
             currentQuestionIndex,
             score,
             timeLeft,
-            shuffledQuestions
+            shuffledQuestions,
+            started: quizStarted
         };
         localStorage.setItem(`quizState_${quizID}_${studentID}`, JSON.stringify(state));
     }
 
     // Start logic
-    const startBtn = document.getElementById('start');
     if (hasTimer && startBtn) {
-        answerButtons.forEach(btn => btn.disabled = true);
-        startBtn.addEventListener('click', () => {
+        if (quizStarted) {
+            startBtn.classList.add('hidden');
+            quizStarted = true;
             answerButtons.forEach(btn => btn.disabled = false);
-            startBtn?.classList.add('hidden');
             displayTime();
             timerInterval = setInterval(updateTimer, 1000);
-        });
-    } else if (hasTimer && !startBtn) {
-        timerInterval = setInterval(updateTimer, 1000); // auto-start if no button
+            loadQuestion();
+        } else {
+            answerButtons.forEach(btn => btn.disabled = true);
+            startBtn.addEventListener('click', () => {
+                quizStarted = true;
+                startBtn.classList.add('hidden');
+                answerButtons.forEach(btn => btn.disabled = false);
+                displayTime();
+                timerInterval = setInterval(updateTimer, 1000);
+                loadQuestion();
+            });
+        }
+    } else {
+        // No timer mode or no start button
+        quizStarted = true;
+        answerButtons.forEach(btn => btn.disabled = false);
+        loadQuestion();
     }
 
     answerButtons.forEach((btn, index) => {
         btn.addEventListener('click', () => checkAnswer(index));
     });
 
-    loadQuestion();
-
     // Warn before closing
-    window.addEventListener('beforeunload', function (e) {
+    window.addEventListener('beforeunload', function(e) {
         e.preventDefault();
         e.returnValue = 'You have an ongoing quiz. Are you sure you want to leave?';
     });
 </script>
+
 
 <?php
 include_once('components/footer.php');
